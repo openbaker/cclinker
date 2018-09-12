@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import backend.services.abstracts.Pubmed;
+import backend.services.Pubmed;
 import backend.services.lookup.UMLS;
 
 /**
@@ -21,7 +21,7 @@ import backend.services.lookup.UMLS;
 class TestServiceAbstractsPubmed {
 
 	/**
-	 * Test method for {@link backend.services.abstracts.Pubmed#getAbstractsWithTerm(String)}.
+	 * Test method for {@link backend.services.Pubmed#getAbstractsWithTerm(String)}.
 	 */
 	void testGetAbstractsWithTerm() {
 		String term = "Dendritic cell fibroblast interaction";
@@ -37,7 +37,7 @@ class TestServiceAbstractsPubmed {
 	}
 	
 	/**
-	 * Test method for {@link backend.services.abstracts.Pubmed#getAbstractsWithTerm(String)}.
+	 * Test method for {@link backend.services.Pubmed#getAbstractsWithTerm(String)}.
 	 */
 	@Test
 	void testGetAbstractsWithSynonyms() {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package backend.services.abstracts;
+package backend.services;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,13 +25,16 @@ import org.w3c.dom.NodeList;
 
 import backend.manager.ConfigManager;
 import backend.manager.HttpManager;
-import backend.services.AbstractService;
 
 /**
  * @author schiend
  *
  */
-public class Pubmed implements AbstractService{
+public class Pubmed {
+	
+	public static String LOGICAL_AND = "AND";
+	public static String LOGICAL_OR = "OR";
+	public static String LOGICAL_XOR = "XOR";
 	
 	public Pubmed() {
 		// init pubmed methods
@@ -160,7 +163,7 @@ public class Pubmed implements AbstractService{
 	 * @param params
 	 * @return
 	 */
-	public static int getAbstractsWithTerms(List<String> terms, Map<String, String> params) {
+	public static int[] getAbstractsWithTerms(List<String> terms, Map<String, String> params) {
 		// create a dummy list with one entry
 		List<List<String>> termsList = new ArrayList<>();
 		
@@ -177,7 +180,7 @@ public class Pubmed implements AbstractService{
 	 * @param maxDate
 	 * @return
 	 */
-	public static int getAbstractsWithTerm(String term, Map<String, String> params) {
+	public static int[] getAbstractsWithTerm(String term, Map<String, String> params) {
 		return getAbstractsWithTerms(Arrays.asList(term), params);
 	}
 	
@@ -228,7 +231,7 @@ public class Pubmed implements AbstractService{
 			
 			// add logical operator if there is another term
 			if (terms.hasNext()) {
-				searchString += " " + AbstractService.logicalOperatorOR + " ";
+				searchString += " " + LOGICAL_OR + " ";
 			}
 		}
 		
@@ -270,7 +273,7 @@ public class Pubmed implements AbstractService{
 	 * @return
 	 */
 	private static String combineSearchStrings(List<List<String>> termsList) {
-		return combineSearchStrings(termsList, AbstractService.logicalOperatorAND);
+		return combineSearchStrings(termsList, LOGICAL_AND);
 	}
 	
 	/**

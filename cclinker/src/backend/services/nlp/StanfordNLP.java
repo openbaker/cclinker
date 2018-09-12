@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -160,12 +161,46 @@ public class StanfordNLP {
 		
 		return splitAbstractSentencesWithKeywordsList(keywordsList, filepath, saveOnlyMatches);
 	}
-
+	
+	/**
+	 * @see splitAbstractSentencesWithKeywords(List<String> keywords, String filepath, boolean saveOnlyMatches)
+	 * 
+	 * @param keywords
+	 * @param filepath
+	 * @param saveOnlyMatches
+	 * @return
+	 */
+	public static int splitAbstractSentencesWithKeywords(
+			List<String> keywords, String filepath) {
+		return splitAbstractSentencesWithKeywords(keywords, filepath, true);
+	}
+	
+	/**
+	 * Get filepath based on type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private static String getFilepath(int type) {
+		String filepath = new String();
+		
+		// which filepath?
+		if (type == TYPE_PROCESS) {
+			filepath = ConfigManager.getInstance().getServiceStanfordNLPProcessFP();
+		} else if (type == TYPE_POS) {
+			filepath = ConfigManager.getInstance().getServiceStanfordNLPPosFP();
+		} else if (type == TYPE_DEPPARSE) {
+			filepath = ConfigManager.getInstance().getServiceStanfordNLPDepparseFP();
+		}
+		
+		return filepath;
+	}
+	
 	/**
 	 * Build filename from other service
 	 * 
 	 * @param filePath
-	 * @param suffix
+	 * @param type
 	 * @return
 	 */
 	public static String buildFileName(String serviceFilepath, int type) {
@@ -182,16 +217,32 @@ public class StanfordNLP {
 				filename = match.group(0);
 				filename += ".csv";
 				
-				// which filepath?
-				if (type == TYPE_PROCESS) {
-					filepath = ConfigManager.getInstance().getServiceStanfordNLPProcessFP();
-				} else if (type == TYPE_POS) {
-					filepath = ConfigManager.getInstance().getServiceStanfordNLPPosFP();
-				} else if (type == TYPE_DEPPARSE) {
-					filepath = ConfigManager.getInstance().getServiceStanfordNLPDepparseFP();
-				}
+				filepath = getFilepath(type);
 					
 				filepath += filename;
+		}
+				
+		return filepath;
+	}
+	
+	/**
+	 * Build filename from id
+	 * 
+	 * @param id
+	 * @param type
+	 * @return
+	 */
+	public static String buildFileName(int[] id, int type) {
+		String filename = new String();
+		String filepath = new String();
+		
+		if (id.length == 2) {
+			filename = Integer.toString(id[0]) + Integer.toString(id[1]);
+			filename += ".csv";
+			
+			filepath = getFilepath(type);
+				
+			filepath += filename;
 		}
 				
 		return filepath;
@@ -228,18 +279,36 @@ public class StanfordNLP {
 	 */
 	public static void extractConceptsFromSentences(int[] id) {
 		// filter sentences for the ones having the keywords, [2] > 0
-		
-		// read in file
-		// load abstract file
-		BufferedReader br;
 
-		// prepare csv file
-		File file = new File(buildFileName(filepath, TYPE_POS));
-		if (file.exists()) {
-			file.delete();
+		// prepare input/output
+		File inputFile = new File(buildFileName(id, TYPE_PROCESS));
+		File outputFile = new File(buildFileName(id, TYPE_DEPPARSE));
+		
+		if (outputFile.exists()) {
+			outputFile.delete();
 		}
 		
-		// split sentences into pos and lemma
+		// process text
+		Properties props = new Properties();
+	    props.setProperty("annotators", ConfigManager.getInstance().getServiceStanfordNLPdepparse());
+	    props.setProperty("coref.algorithm", ConfigManager.getInstance().getServiceStanfordNLPAlgorithm());
+	    
+	    // build pipeline
+	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+	    
+	    // prepare file handler
+	    Scanner inputStream= new Scanner(inputFile);
+	    StringBuilder abstractText = new StringBuilder();
+	    
+	    // go through sentences
+	    String line = new String();
+	    while ((line = inputStream.next()) != null) {
+		    // create a document
+		    CoreDocument document = new CoreDocument(text);
+		    
+		    // annnotate the document
+		    pipeline.annotate(document);
+	    }
 		
 		// go through and save lemma into map with pos as key and lemma as value
 		

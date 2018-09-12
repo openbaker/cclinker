@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import backend.services.abstracts.Pubmed;
+import backend.services.Pubmed;
 import backend.services.nlp.StanfordNLP;
 
 /**
@@ -46,11 +46,14 @@ class TestServiceNLPStanfordNLP {
 		String fileName = Pubmed.getSearchIDFile(180911, 1234567890);
 		
 		// split abstract sentences
-		int numAbstracts = StanfordNLP.splitAbstractSentences(keywords, fileName);
+		int numAbstracts = StanfordNLP.splitAbstractSentencesWithKeywords(keywords, fileName);
 		
 		assertEquals(10, numAbstracts);
 	}
 	
+	/**
+	 * Test to extract concepts from retrieved pubmed sentences
+	 */
 	@Test
 	void testExtractConceptsFromSentences() {
 		List<String> cellList = Arrays.asList(
@@ -77,11 +80,14 @@ class TestServiceNLPStanfordNLP {
 		searchTerms.add(cellList);
 		searchTerms.add(key2);
 		
+		/*
 		int[] id = Pubmed.getAbstractsWithTermsList(searchTerms,
 				Pubmed.buildDateParams(
 						new GregorianCalendar(2017, 1, 1).getTime(),
 						new GregorianCalendar(2017, 12, 31).getTime()
 						));
+		*/
+		int[] id = {180912, 1615471538};
 		
 		// define pubmed result file
 		String fileName = Pubmed.getSearchIDFile(id[0], id[1]);
@@ -94,6 +100,7 @@ class TestServiceNLPStanfordNLP {
 				Pubmed.getSearchIDFile(id[0], id[1]), StanfordNLP.TYPE_DEPPARSE);
 		
 		// extract concepts from sentences
+		StanfordNLP.extractConceptsFromSentences(id);
 	}
 
 }

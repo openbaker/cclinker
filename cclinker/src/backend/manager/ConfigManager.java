@@ -514,6 +514,15 @@ public class ConfigManager {
 	}
 	
 	/**
+	 * Return Stanford NLP dependency parsing
+	 * 
+	 * @return
+	 */
+	public String getServiceStanfordNLPdepparse() {
+		return this.getServiceProp("stanford_nlp_depparse");
+	}
+	
+	/**
 	 * Return Stanford NLP algorithm
 	 * 
 	 * @return
