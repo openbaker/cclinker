@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import backend.services.Pubmed;
-import backend.services.nlp.StanfordNLP;
+import backend.services.StanfordNLP;
 
 /**
  * @author dominiks

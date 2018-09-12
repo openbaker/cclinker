@@ -1,7 +1,7 @@
 /**
  * 
  */
-package backend.services.lookup;
+package backend.services;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import backend.services.lookup.UMLS;
+import backend.services.UMLS;
 import gov.nih.nlm.uts.webservice.AtomDTO;
 import gov.nih.nlm.uts.webservice.UiLabel;
 
@@ -23,7 +23,7 @@ import gov.nih.nlm.uts.webservice.UiLabel;
 class TestServiceLookupUMLS {
 
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#findConcepts(String, int, String)}.
+	 * Test method for {@link backend.services.UMLS#findConcepts(String, int, String)}.
 	 */
 	void testFindConcepts() {
 		String term = "dendritic-cell";
@@ -39,7 +39,7 @@ class TestServiceLookupUMLS {
 	}
 	
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getConceptAtoms(String)}.
+	 * Test method for {@link backend.services.UMLS#getConceptAtoms(String)}.
 	 */
 	void testGetConceptAtoms() {
 		String code = "C0011306"; // Dendritic cell
@@ -51,7 +51,7 @@ class TestServiceLookupUMLS {
 	}
 	
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getNormalisedTermByCode(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getNormalisedTermByCode(java.lang.String)}.
 	 */
 	void testGetNormalisedTermByCode() {
 		String code = "C0011306";
@@ -63,7 +63,7 @@ class TestServiceLookupUMLS {
 	}
 	
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getNormalisedTermByTerm(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getNormalisedTermByTerm(java.lang.String)}.
 	 */
 	void testGetNormalisedTermByTerm() {
 		String term = "dendritic-cells";
@@ -75,7 +75,7 @@ class TestServiceLookupUMLS {
 	}
 
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getSynonymsOfCode(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getSynonymsOfCode(java.lang.String)}.
 	 */
 	void testGetSynonymsOfCode() {
 		String code = "C0011306";
@@ -87,7 +87,7 @@ class TestServiceLookupUMLS {
 	}
 	
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getSynonymsOfTerm(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getSynonymsOfTerm(java.lang.String)}.
 	 */
 	void testGetSynonymsOfTerm() {
 		String term = "dendritic-cell";
@@ -99,7 +99,7 @@ class TestServiceLookupUMLS {
 	}
 
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getTermDefinition(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getTermDefinition(java.lang.String)}.
 	 */
 	@Test
 	void testGetTermDefinition() {
@@ -113,7 +113,7 @@ class TestServiceLookupUMLS {
 	}
 
 	/**
-	 * Test method for {@link backend.services.lookup.UMLS#getUMLSUseTicket(java.lang.String)}.
+	 * Test method for {@link backend.services.UMLS#getUMLSUseTicket(java.lang.String)}.
 	 */
 	void testGetUMLSUseTicket() {
 		// TGT ticket

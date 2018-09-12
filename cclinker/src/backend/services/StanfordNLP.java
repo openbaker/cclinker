@@ -1,7 +1,7 @@
 /**
  * 
  */
-package backend.services.nlp;
+package backend.services;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -297,14 +297,14 @@ public class StanfordNLP {
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 	    
 	    // prepare file handler
-	    Scanner inputStream= new Scanner(inputFile);
+	    Scanner inputStream = new Scanner(inputFile);
 	    StringBuilder abstractText = new StringBuilder();
 	    
 	    // go through sentences
 	    String line = new String();
 	    while ((line = inputStream.next()) != null) {
 		    // create a document
-		    CoreDocument document = new CoreDocument(text);
+		    CoreDocument document = new CoreDocument(line);
 		    
 		    // annnotate the document
 		    pipeline.annotate(document);

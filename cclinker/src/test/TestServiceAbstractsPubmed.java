@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import backend.services.Pubmed;
-import backend.services.lookup.UMLS;
+import backend.services.UMLS;
 
 /**
  * @author schiend
