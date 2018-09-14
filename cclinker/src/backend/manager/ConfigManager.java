@@ -559,6 +559,16 @@ public class ConfigManager {
 	}
 	
 	/**
+	 * Return Stanford NLP keyword relations
+	 * 
+	 * @return
+	 */
+	public List<String> getServiceStanfordNLPKeywordRelations() {
+		return this.extractListFromProp(
+				this.getServiceProp("stanford_nlp_keyword_relations"));
+	}
+	
+	/**
 	 * Return http url encoding delay
 	 * 
 	 * @return

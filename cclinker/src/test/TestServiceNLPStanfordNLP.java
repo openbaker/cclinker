@@ -87,7 +87,8 @@ class TestServiceNLPStanfordNLP {
 						new GregorianCalendar(2017, 12, 31).getTime()
 						));
 		*/
-		int[] id = {180912, 1615471538};
+		
+		int[] id = {180914, 655497487};
 		
 		// define pubmed result file
 		String fileName = Pubmed.getSearchIDFile(id[0], id[1]);
@@ -100,7 +101,7 @@ class TestServiceNLPStanfordNLP {
 				Pubmed.getSearchIDFile(id[0], id[1]), StanfordNLP.TYPE_DEPPARSE);
 		
 		// extract concepts from sentences
-		StanfordNLP.extractConceptsFromSentences(id);
+		StanfordNLP.extractConceptsFromSentences(id, cellList);
 	}
 
 }

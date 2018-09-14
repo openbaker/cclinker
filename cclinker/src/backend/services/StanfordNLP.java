@@ -9,17 +9,32 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
 import backend.manager.ConfigManager;
+import edu.stanford.nlp.io.EncodingPrintWriter.out;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.StringUtils;
 
 /**
@@ -277,7 +292,7 @@ public class StanfordNLP {
 	 * 
 	 * @param int[]
 	 */
-	public static void extractConceptsFromSentences(int[] id) {
+	public static void extractConceptsFromSentences(int[] id, List<String> keywords) {
 		// filter sentences for the ones having the keywords, [2] > 0
 
 		// prepare input/output
@@ -296,22 +311,127 @@ public class StanfordNLP {
 	    // build pipeline
 	    StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 	    
-	    // prepare file handler
-	    Scanner inputStream = new Scanner(inputFile);
+	    // prepare to store nlp information
 	    StringBuilder abstractText = new StringBuilder();
 	    
-	    // go through sentences
-	    String line = new String();
-	    while ((line = inputStream.next()) != null) {
-		    // create a document
-		    CoreDocument document = new CoreDocument(line);
+	    // get realations to look for
+	    List<String> relations = ConfigManager.getInstance().getServiceStanfordNLPKeywordRelations();
+	    
+	    // load CSV and go through sentences
+	    Reader reader;
+		try {
+			reader = Files.newBufferedReader(Paths.get(
+					buildFileName(id, TYPE_PROCESS)));
+			
+			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
 		    
-		    // annnotate the document
-		    pipeline.annotate(document);
-	    }
+			int count = 0;
+		    for (CSVRecord csvRecord : csvParser) {
+		    	// get sentence
+		    	String sentenceToAnnotate = csvRecord.get(3);
+		    	
+			    // create a document
+			    Annotation document = new Annotation(sentenceToAnnotate);
+			    
+			    // get dependencies from sentence
+			    pipeline.annotate(document);
+			    
+			    // for each sentence you can get a list of collapsed dependencies as follows
+			    for (CoreMap sentence: document.get(SentencesAnnotation.class)) {			    	
+			    	// get dependencies
+			    	SemanticGraph dependencies =
+			    			sentence.get(BasicDependenciesAnnotation.class);
+			    	
+			    	// find positions of keywords
+			    	List<IndexedWord> idxWords = findPositionsOfKeywords(
+			    			dependencies, keywords);
+			    	
+			    	// print sentence
+			    	System.out.println(sentence.toString());
+			    	
+			    	String associatedTerm = new String();
+			    	
+			    	// get governor of keywords
+			    	for (IndexedWord idxWord: idxWords) {
+			    		// get outgoing edges
+			    		Iterator<SemanticGraphEdge> outgoing =
+			    				dependencies.incomingEdgeIterator(idxWord);
+			    		
+			    		// go through edges
+			    		while (outgoing.hasNext()) {
+			    			SemanticGraphEdge curEdge = outgoing.next();
+			    			
+			    			System.out.println(
+				    				">> " + curEdge.getDependent().word()
+				    				+ "\t| " + curEdge.getDependent().index()
+				    				+ "\t| " + curEdge.getGovernor().word()
+				    				+ "\t| " + curEdge.getGovernor().index()
+				    				+ "\t| " + curEdge.getRelation().toString()
+				    				);
+			    			
+			    			// found a relevant term?
+				    		if (relations.contains(curEdge.getRelation().toString())) {
+				    			associatedTerm = curEdge.getGovernor().word();
+				    		}
+			    		}
+			    	}
+			    	
+			    	System.out.println(">> Associated term: " + associatedTerm);
+			    }
+		    }
+		    
+		    // close parser
+		    csvParser.close();
+			
+			// go through and save lemma into map with pos as key and lemma as value
+			
+			// save as csv for each pmid
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+	}
+	
+	/**
+	 * Find positions of keywords in sentence
+	 * 
+	 * @param sentence
+	 * @param keywords
+	 * @return
+	 */
+	private static List<IndexedWord> findPositionsOfKeywords(
+			SemanticGraph dependencies, List<String> keywords) {
+		List<IndexedWord> idxWords = new ArrayList<>();
 		
-		// go through and save lemma into map with pos as key and lemma as value
+		// go through keywords
+		for (String keyword: keywords) {
+			// split keyword
+			String[] words = keyword.split(" ");
+			List<IndexedWord> tmpIdxWords = new ArrayList<>();
+			
+			// get indices
+			for (String word: words) {
+				IndexedWord idxWord = dependencies.getNodeByWordPattern(word);
+				
+				if (idxWord != null) {
+					tmpIdxWords.add(idxWord);
+				}
+			}
+			
+			// are the indices in sequence?
+			boolean seqIndices = true;
+			for (int i = 0; i < tmpIdxWords.size() - 1; i++) {
+				if (tmpIdxWords.get(i).index() + 1 
+						!= tmpIdxWords.get(i + 1).index()) {
+					seqIndices = false;
+				}
+			}
+			
+			if (seqIndices == true && tmpIdxWords.size() > 0) {
+				idxWords.add(tmpIdxWords.get(0));
+			}
+		}
 		
-		// save as csv for each pmid
+		return idxWords;
 	}
 }
